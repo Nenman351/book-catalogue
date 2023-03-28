@@ -45,7 +45,7 @@ LOCAL_APPS = ['book',
               'api',
               ]
 
-THIRD_PARTY = ['rest_framework',"debug_toolbar", ]
+THIRD_PARTY = ['rest_framework', "debug_toolbar", 'djoser', ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY
 
@@ -137,3 +137,23 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'book.LibraryUser'
+
+REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
+}
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreate',
+    }
+}

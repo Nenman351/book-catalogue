@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from book.models import Book, Author
-from .serializers import BookSerializer, BookCreateSerializer, GetAuthorSerializer
+from .pagination import DefaultPageNumberPagination
+from .serializers import BookSerializer, BookCreateSerializer, AuthorCreateSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework import generics
@@ -10,21 +13,53 @@ from rest_framework import generics
 
 # Create your views here.
 
+class AuthorViewSet(ModelViewSet):
+    pagination_class = DefaultPageNumberPagination
+    queryset = Author.objects.all()
+    serializer_class = AuthorCreateSerializer
+
+
+class BookViewSet(ModelViewSet):
+    pagination_class = DefaultPageNumberPagination
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
 class BookCreateApiView(generics.ListAPIView):
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
 
 
-class AuthorCreateApiView(generics.ListAPIView):
+class AuthorCreateApiView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Author.objects.all()
-    serializer_class = GetAuthorSerializer
+    serializer_class = AuthorCreateSerializer
+
+
+class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
+@api_view()
+def author_detail(request):
+    author = get_object_or_404(Author)
+    serializer = AuthorCreateApiView(author)
+    return Response(serializer.data)
+
+
+class BookCreate(generics.CreateAPIView):
+    serializer_class = BookCreateSerializer
+
+
+class CreateAuthor(generics.CreateAPIView):
+    serializer_class = AuthorCreateSerializer
 
 
 class GetAuthorByID(generics.ListAPIView):
     def get(self, request, id):
         try:
             author = Author.objects.get(pk=id)
-            serializer = GetAuthorSerializer(author)
+            serializer = AuthorCreateApiView(author)
             return Response(serializer.data)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -34,10 +69,14 @@ class GetBookById(generics.ListAPIView):
     def get(self, request, id):
         try:
             book = Book.objects.get(pk=id)
-            serializer = BookSerializer(book)
+            serializer = BookCreateSerializer(book)
             return Response(serializer.data)
         except Book.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# class AuthorCreateAPIView(generics.CreateAPIView):
+#     author = Author.objects.create()
+#     serializer_class = AuthorCreateSerializer
 
 # @api_view(['GET', 'POST'])
 # def book_list(request):

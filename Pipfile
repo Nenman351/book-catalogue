@@ -10,6 +10,8 @@ mysqlclient = "*"
 djangorestframework = "*"
 genre = "*"
 django-debug-toolbar = "*"
+djoser = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 

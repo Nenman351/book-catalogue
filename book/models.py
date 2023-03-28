@@ -1,15 +1,20 @@
 from uuid import uuid4
 
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from enum import Enum
 
 
 # Create your models here.
 
+class LibraryUser(AbstractUser):
+    email = models.EmailField(unique=True)
+
 
 class Author(models.Model):
     first_name = models.CharField(max_length=255, blank=False, null=False)
     last_name = models.CharField(max_length=255, blank=False, null=False)
+    email = models.EmailField(blank=True, null=False)
     date_of_birth = models.DateField(blank=False, null=False)
     date_of_death = models.DateField(blank=True, null=True, default='2000-10-01')
 
@@ -18,19 +23,17 @@ class Author(models.Model):
 
 
 class Language(Enum):
-    NONE = 'choose'
-    ENGLISH = 'eng'
-    HAUSA = 'hau'
-    SPANISH = 'span'
-    YORUBA = 'yor'
+    ENGLISH = 'ENG'
+    HAUSA = 'HAU'
+    IGBO = 'IGB'
+    YORUBA = 'YOR'
 
 
 class Genre(Enum):
-    NONE = 'choose'
-    FICTION = 'fic'
-    ADVENTURE = 'adv'
-    MAGICAL = 'mag'
-    SCIENCE = 'sci'
+    FINANCE = 'FIN'
+    POLITICS = 'POL'
+    POWER = 'POW'
+    COMEDY = 'COM'
 
 
 class Book(models.Model):
@@ -41,8 +44,9 @@ class Book(models.Model):
     description = models.CharField(max_length=200, blank=False, null=False)
     date_added = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='author')
-    genre = models.CharField(choices=GENRE_CHOICE, max_length=45, default='choose')
-    language = models.CharField(choices=LANGUAGE_CHOICE, max_length=45, default='choose')
+    genre = models.CharField(choices=GENRE_CHOICE, max_length=45, default='FIN')
+    price = models.DecimalField(default=0,max_digits=6, decimal_places=2)
+    language = models.CharField(choices=LANGUAGE_CHOICE, max_length=45, default='YOR')
 
     def __str__(self):
         return self.title

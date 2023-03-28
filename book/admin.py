@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from book.models import Book, Author, BookInstance, Genre, Language
+from book.models import Book, Author, BookInstance
 
 # Register your models here.
 
