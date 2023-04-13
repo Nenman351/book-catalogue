@@ -2,10 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
-from book.models import Book, Author
+from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
+from book.models import Book, Author, BookInstance
 from .pagination import DefaultPageNumberPagination
-from .serializers import BookSerializer, BookCreateSerializer, AuthorCreateSerializer
+from .permissions import IsAdminOrReadOnly
+from .serializers import BookSerializer, BookCreateSerializer, AuthorCreateSerializer, BookInstanceSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework import generics
@@ -14,9 +16,20 @@ from rest_framework import generics
 # Create your views here.
 
 class AuthorViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = DefaultPageNumberPagination
     queryset = Author.objects.all()
     serializer_class = AuthorCreateSerializer
+
+
+class BookInstanceViewSet(ModelViewSet):
+    queryset = BookInstance.objects.all()
+    serializer_class = BookInstanceSerializer
+
+
+# class BookInstanceList(generics.ListCreateAPIView):
+#     queryset = BookInstance.objects.all()
+#     serializer_class = BookInstanceSerializer
 
 
 class BookViewSet(ModelViewSet):
@@ -41,9 +54,12 @@ class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 @api_view()
-def author_detail(request):
-    author = get_object_or_404(Author)
+def author_detail(request, pk):
+    author = get_object_or_404(Author, pk=pk)
     serializer = AuthorCreateApiView(author)
+    message = 'Hey there, you are beautiful!'
+    subject = 'Django'
+    send_mail(subject, message, '', ['smileokuta3@gmail.com', 'em123nest@gmail.com'], fail_silently=False)
     return Response(serializer.data)
 
 

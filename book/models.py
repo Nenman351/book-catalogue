@@ -45,11 +45,14 @@ class Book(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='author')
     genre = models.CharField(choices=GENRE_CHOICE, max_length=45, default='FIN')
-    price = models.DecimalField(default=0,max_digits=6, decimal_places=2)
+    price = models.DecimalField(default=0, max_digits=6, decimal_places=2)
     language = models.CharField(choices=LANGUAGE_CHOICE, max_length=45, default='YOR')
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ['-title']
 
 
 class Status(Enum):
@@ -68,6 +71,8 @@ class BookInstance(models.Model):
     status = models.CharField(max_length=45, choices=STATUS_CHOICES, default='Available')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='books')
     imprint = models.CharField(max_length=255, null=False, blank=False)
+    borrower = models.OneToOneField(LibraryUser, on_delete=models.CASCADE, default='')
 
     def __str__(self):
         return self.imprint
+
